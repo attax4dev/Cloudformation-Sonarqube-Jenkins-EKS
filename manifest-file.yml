@@ -20,7 +20,7 @@ spec:
     app: app
   ports:
     - protocol: TCP
-      port: 3000
+      port: 80
       targetPort: 3000
 ---
 apiVersion: apps/v1
@@ -63,4 +63,3 @@ spec:
           image: glsibdockerhub/front-app
           ports:
             - containerPort: 3000
-
