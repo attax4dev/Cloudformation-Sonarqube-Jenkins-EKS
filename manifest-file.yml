@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: <your_app_image>
+          image: glsibdockerhub/front-app
           ports:
             - containerPort: 3000
           volumeMounts:
