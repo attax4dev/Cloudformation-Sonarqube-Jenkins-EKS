@@ -1,0 +1,111 @@
+Parameters:
+  JenkinsVpc:
+    Type: AWS::EC2::VPC::Id
+  JenkinsSubnet:
+    Type: AWS::EC2::Subnet::Id
+  EksVpc:
+    Type: AWS::EC2::VPC::Id
+  EksSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+  JenkinsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+  JenkinsInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0dfcb1ef8550277af
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum update -y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo \
+            https://pkg.jenkins.io/redhat-stable/jenkins.repo
+          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key          SubnetId: !Ref JenkinsSubnet
+      IamInstanceProfile: LabInstanceProfile
+
+
+  EksCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: eks-cluster
+      RoleArn: arn:aws:iam::402684666822:role/LabRole
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref EksSecurityGroup
+        SubnetIds: 
+          - subnet-06589fea62ccc84ae
+          - subnet-0a36469e9f3f08f9b
+      Version: "1.25"
+
+Outputs:
+  JenkinsInstancePublicIp:
+    Value: !GetAtt JenkinsInstance.PublicIp
+    Description: Public IP address of the Jenkins instance
+  EksClusterName:
+    Value: !Ref EksCluster
+    Description: Name of the EKS cluster
+
+          sudo yum upgrade -y
+          sudo amazon-linux-extras install java-openjdk11 -y
+          sudo yum install jenkins -y
+          sudo systemctl enable jenkins
+          sudo systemctl start jenkins
+          sudo systemctl status jenkins
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet:
+            - !Ref JenkinsSecurityGroup
+          SubnetId: !Ref JenkinsSubnet
+      IamInstanceProfile: LabInstanceProfile
+
+
+  EksCluster:          SubnetId: !Ref JenkinsSubnet
+      IamInstanceProfile: LabInstanceProfile
+
+
+  EksCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: eks-cluster
+      RoleArn: arn:aws:iam::402684666822:role/LabRole
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref EksSecurityGroup
+        SubnetIds: 
+          - subnet-06589fea62ccc84ae
+          - subnet-0a36469e9f3f08f9b
+      Version: "1.25"
+
+Outputs:
+  JenkinsInstancePublicIp:
+    Value: !GetAtt JenkinsInstance.PublicIp
+    Description: Public IP address of the Jenkins instance
+  EksClusterName:
+    Value: !Ref EksCluster
+    Description: Name of the EKS cluster
+
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: eks-cluster
+      RoleArn: arn:aws:iam::402684666822:role/LabRole
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref EksSecurityGroup
+        SubnetIds: 
+          - subnet-06589fea62ccc84ae
+          - subnet-0a36469e9f3f08f9b
+      Version: "1.25"
+
+Outputs:
+  JenkinsInstancePublicIp:
+    Value: !GetAtt JenkinsInstance.PublicIp
+    Description: Public IP address of the Jenkins instance
+  EksClusterName:
+    Value: !Ref EksCluster
+    Description: Name of the EKS cluster
