@@ -41,14 +41,8 @@ spec:
         - name: mongo
           image: mongo
           ports:
-            - containerPort: 27017
-          volumeMounts:
-            - name: mongo-data
-              mountPath: /data/db
-      volumes:
-        - name: mongo-data
-          persistentVolumeClaim:
-            claimName: mongo-data
+          - containerPort: 27017
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -69,13 +63,4 @@ spec:
           image: glsibdockerhub/front-app
           ports:
             - containerPort: 3000
-          volumeMounts:
-            - name: mongo-data
-              mountPath: /data/db
-          env:
-            - name: MONGO_URI
-              value: "mongodb://mongo:27017/mydb"
-      volumes:
-        - name: mongo-data
-          persistentVolumeClaim:
-            claimName: mongo-data
+
