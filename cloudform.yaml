@@ -25,31 +25,37 @@ Resources:
           sudo yum update -y
           sudo wget -O /etc/yum.repos.d/jenkins.repo \
             https://pkg.jenkins.io/redhat-stable/jenkins.repo
-          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key          SubnetId: !Ref JenkinsSubnet
+          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+          sudo yum upgrade -y
+          sudo amazon-linux-extras install java-openjdk11 -y
+          sudo yum install jenkins -y
+          sudo systemctl enable jenkins
+          sudo systemctl start jenkins
+          sudo systemctl status jenkins
+          sudo amazon-linux-extras install docker -y & sudo yum install docker -y
+          sudo service docker start
+          sudo usermod -a -G docker ec2-user
+          sudo yum install maven -y       
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet:
+            - !Ref JenkinsSecurityGroup
+          SubnetId: !Ref JenkinsSubnet
       IamInstanceProfile: LabInstanceProfile
-
-
-  EksCluster:
-    Type: AWS::EKS::Cluster
+  SonarQubeInstance:
+    Type: AWS::EC2::Instance
     Properties:
-      Name: eks-cluster
-      RoleArn: arn:aws:iam::402684666822:role/LabRole
-      ResourcesVpcConfig:
-        SecurityGroupIds:
-          - !Ref EksSecurityGroup
-        SubnetIds: 
-          - subnet-06589fea62ccc84ae
-          - subnet-0a36469e9f3f08f9b
-      Version: "1.25"
-
-Outputs:
-  JenkinsInstancePublicIp:
-    Value: !GetAtt JenkinsInstance.PublicIp
-    Description: Public IP address of the Jenkins instance
-  EksClusterName:
-    Value: !Ref EksCluster
-    Description: Name of the EKS cluster
-
+      ImageId: ami-0b3a288fe7d63bf8a
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum update -y
+          sudo wget -O /etc/yum.repos.d/jenkins.repo \
+            https://pkg.jenkins.io/redhat-stable/jenkins.repo
+          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
           sudo yum upgrade -y
           sudo amazon-linux-extras install java-openjdk11 -y
           sudo yum install jenkins -y
@@ -62,44 +68,19 @@ Outputs:
           GroupSet:
             - !Ref JenkinsSecurityGroup
           SubnetId: !Ref JenkinsSubnet
-      IamInstanceProfile: LabInstanceProfile
-
-
-  EksCluster:          SubnetId: !Ref JenkinsSubnet
-      IamInstanceProfile: LabInstanceProfile
-
+      IamInstanceProfile: LabInstanceProfile  
 
   EksCluster:
     Type: AWS::EKS::Cluster
     Properties:
       Name: eks-cluster
-      RoleArn: arn:aws:iam::402684666822:role/LabRole
+      RoleArn: arn:aws:iam::609565384919:role/LabRole
       ResourcesVpcConfig:
         SecurityGroupIds:
           - !Ref EksSecurityGroup
         SubnetIds: 
-          - subnet-06589fea62ccc84ae
-          - subnet-0a36469e9f3f08f9b
-      Version: "1.25"
-
-Outputs:
-  JenkinsInstancePublicIp:
-    Value: !GetAtt JenkinsInstance.PublicIp
-    Description: Public IP address of the Jenkins instance
-  EksClusterName:
-    Value: !Ref EksCluster
-    Description: Name of the EKS cluster
-
-    Type: AWS::EKS::Cluster
-    Properties:
-      Name: eks-cluster
-      RoleArn: arn:aws:iam::402684666822:role/LabRole
-      ResourcesVpcConfig:
-        SecurityGroupIds:
-          - !Ref EksSecurityGroup
-        SubnetIds: 
-          - subnet-06589fea62ccc84ae
-          - subnet-0a36469e9f3f08f9b
+          - subnet-05e0f0b18693bb587
+          - subnet-0e8ba44d4762e8f83
       Version: "1.25"
 
 Outputs:
