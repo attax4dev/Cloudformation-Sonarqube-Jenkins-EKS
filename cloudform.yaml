@@ -9,8 +9,12 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
   JenkinsSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
+  SonarQubeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
+  SonarQubeSubnet:
+    Type: AWS::EC2::Subnet::Id
 
 Resources:
   JenkinsInstance:
@@ -66,8 +70,8 @@ Resources:
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
           GroupSet:
-            - !Ref JenkinsSecurityGroup
-          SubnetId: !Ref JenkinsSubnet
+            - !Ref SonarQubeSecurityGroup
+          SubnetId: !Ref SonarQubeSubnet
       IamInstanceProfile: LabInstanceProfile  
 
   EksCluster:
@@ -90,3 +94,7 @@ Outputs:
   EksClusterName:
     Value: !Ref EksCluster
     Description: Name of the EKS cluster
+  SonarQubeInstancePublicIp:
+    Value: !GetAtt SonarQubeInstance.PublicIp
+    Description: Public IP address of the SonarQubeInstance
+
