@@ -82,7 +82,7 @@ Resources:
           - subnet-05e0f0b18693bb587
           - subnet-0e8ba44d4762e8f83
       Version: "1.25"
-
+##output the urls
 Outputs:
   JenkinsInstancePublicIp:
     Value: !GetAtt JenkinsInstance.PublicIp
