@@ -29,7 +29,7 @@ Resources:
           sudo yum update -y
           sudo wget -O /etc/yum.repos.d/jenkins.repo \
             https://pkg.jenkins.io/redhat-stable/jenkins.repo
-          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
           sudo yum upgrade -y
           sudo amazon-linux-extras install java-openjdk11 -y
           sudo yum install jenkins -y
@@ -41,38 +41,27 @@ Resources:
           sudo usermod -a -G docker ec2-user
           sudo yum install maven -y       
       NetworkInterfaces:
-        - AssociatePublicIpAddress: true
+        - AssociatePublicIpAddress: false
           DeviceIndex: 0
           GroupSet:
             - !Ref JenkinsSecurityGroup
           SubnetId: !Ref JenkinsSubnet
       IamInstanceProfile: LabInstanceProfile
+    DependsOn: JenkinsEipAssociation
   SonarQubeInstance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0b3a288fe7d63bf8a
       InstanceType: t2.micro
       KeyName: !Ref KeyName
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          sudo yum update -y
-          sudo wget -O /etc/yum.repos.d/jenkins.repo \
-            https://pkg.jenkins.io/redhat-stable/jenkins.repo
-          sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-          sudo yum upgrade -y
-          sudo amazon-linux-extras install java-openjdk11 -y
-          sudo yum install jenkins -y
-          sudo systemctl enable jenkins
-          sudo systemctl start jenkins
-          sudo systemctl status jenkins
       NetworkInterfaces:
-        - AssociatePublicIpAddress: true
+        - AssociatePublicIpAddress: false
           DeviceIndex: 0
           GroupSet:
             - !Ref SonarQubeSecurityGroup
           SubnetId: !Ref SonarQubeSubnet
       IamInstanceProfile: LabInstanceProfile  
+    DependsOn: JenkinsEipAssociation
 
   EksCluster:
     Type: AWS::EKS::Cluster
@@ -86,15 +75,39 @@ Resources:
           - subnet-05e0f0b18693bb587
           - subnet-0e8ba44d4762e8f83
       Version: "1.25"
+  JenkinsEip:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: "Name"
+          Value: "JenkinsEIP"
+  JenkinsEipAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref JenkinsInstance
+      AllocationId: !GetAtt JenkinsEip.AllocationId
+
+  SonarQubeEip:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: "Name"
+          Value: "SonarQubeEIP"
+  SonarQubeEipAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref SonarQubeInstance
+      AllocationId: !GetAtt SonarQubeEip.AllocationId
 ##output the urls
 Outputs:
   JenkinsInstancePublicIp:
-    Value: !GetAtt JenkinsInstance.PublicIp
+    Value: !GetAtt JenkinsEip.PublicIp
     Description: Public IP address of the Jenkins instance
   EksClusterName:
     Value: !Ref EksCluster
     Description: Name of the EKS cluster
-  SonarQubeInstancePublicIp:
-    Value: !GetAtt SonarQubeInstance.PublicIp
-    Description: Public IP address of the SonarQubeInstance
+  SonarQubeEip:
+    Value: !GetAtt SonarQubeEip.PublicIp
 
