@@ -21,7 +21,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0dfcb1ef8550277af
-      InstanceType: t2.micro
+      InstanceType: t2.medium
       KeyName: !Ref KeyName
       UserData:
         Fn::Base64: !Sub |
@@ -47,12 +47,12 @@ Resources:
             - !Ref JenkinsSecurityGroup
           SubnetId: !Ref JenkinsSubnet
       IamInstanceProfile: LabInstanceProfile
-    DependsOn: JenkinsEipAssociation
+    #DependsOn: JenkinsEipAssociation
   SonarQubeInstance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0b3a288fe7d63bf8a
-      InstanceType: t2.micro
+      InstanceType: t2.medium
       KeyName: !Ref KeyName
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
@@ -61,7 +61,7 @@ Resources:
             - !Ref SonarQubeSecurityGroup
           SubnetId: !Ref SonarQubeSubnet
       IamInstanceProfile: LabInstanceProfile  
-    DependsOn: JenkinsEipAssociation
+    #DependsOn: SonarQubeEipAssociation
 
   EksCluster:
     Type: AWS::EKS::Cluster
@@ -100,6 +100,24 @@ Resources:
     Properties:
       InstanceId: !Ref SonarQubeInstance
       AllocationId: !GetAtt SonarQubeEip.AllocationId
+  EksNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    Properties:
+      ClusterName: !Ref EksCluster
+      NodegroupName: my-node-group
+      NodeRole: arn:aws:iam::609565384919:role/LabRole
+      Subnets:
+        - subnet-05e0f0b18693bb587
+        - subnet-0e8ba44d4762e8f83
+      ScalingConfig:
+        DesiredSize: 1
+        MaxSize: 2
+        MinSize: 1
+      InstanceTypes:
+        - t2.medium
+      Tags:
+        Name: my-node-group
+
 ##output the urls
 Outputs:
   JenkinsInstancePublicIp:
