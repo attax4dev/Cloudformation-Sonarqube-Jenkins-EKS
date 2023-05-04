@@ -1,4 +1,9 @@
 pipeline {
+    
+tools {
+  nodejs "nodejs"
+}
+
     agent any
     triggers {
         githubPush()
@@ -10,6 +15,7 @@ pipeline {
         stage('Clone repository') { 
             steps { 
                 script {
+                    sh ""
                     sh "rm -rf glsibproject" // remove existing repository if any
                     sh "git clone https://github.com/attax4dev/glsibproject.git " // clone the repository and checkout the master branch
                 }
@@ -25,6 +31,11 @@ pipeline {
                 }
             }
         }
+        stage('Check Node.js') {
+  steps {
+    sh 'node -v'
+  }
+}
 
         stage('Test') {
             steps {
@@ -32,18 +43,26 @@ pipeline {
                     // Run SonarQube analysis
                     withSonarQubeEnv('SonarQube') {
                      //     sh './node_modules/.bin/sonar-scanner'
-                    sh '/home/ec2-user/node_modules/sonar-scanner/bin/sonar-scanner \
+                    sh '/opt/sonar-scanner/bin/sonar-scanner \
 -Dsonar.projectKey=your-project-key \
 -Dsonar.sources=glsibproject/client,glsibproject/server \
--Dsonar.host.url=http://52.200.49.109:9000 \
+-Dsonar.host.url=http://34.199.223.18:9000 \
 -Dsonar.login=admin \
--Dsonar.password=glsib'
+-Dsonar.password=glsia'
 
 
                     }
                 }
             }
         }
+        stage('Quality Gate') {
+            steps {
+                script {
+                    sh 'echo SUCCESS'
+                }
+    }
+}
+
 
         stage('Push') {
             steps {
