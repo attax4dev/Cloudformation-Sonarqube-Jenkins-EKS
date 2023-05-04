@@ -10,7 +10,7 @@ spec:
       port: 27017
       targetPort: 27017
 
-      #trigger pipe
+      #trigger pipe second time
 ---
 apiVersion: v1
 kind: Service
