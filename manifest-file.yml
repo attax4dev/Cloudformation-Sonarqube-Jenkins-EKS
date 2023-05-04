@@ -10,7 +10,7 @@ spec:
       port: 27017
       targetPort: 27017
 
-      #hahahaha testing the webhook habibi here is another test cause why not
+      #trigger pipe
 ---
 apiVersion: v1
 kind: Service
